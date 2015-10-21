@@ -58,30 +58,50 @@ public class ServerClima {
 			
 				try {
 					
-					URL url = new URL(parametros.getProperty("url").toString());
-					
-					BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
-	
-					String inputLine;
-					while ((inputLine = in.readLine()) != null) {
-						System.out.println(inputLine);
-						procesarLectura(inputLine);
+					String lectura = getLectura();
+					boolean continuar = procesarLectura(lectura);
+					/*
+					while(!continuar) {
+						//System.out.println("Se vuelve a solicitar lectura");
+						lectura = getLectura();
+						continuar = procesarLectura(lectura);
+						sleep(tiempo);
 					}
-					in.close();
-					
+					*/
 					sleep(tiempo);
 					
+						
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				/*	
 				} catch(Exception e) {
 					System.err.println(e.getMessage());
+					e.printStackTrace();
 				}
-			
+				 */
 				
 			}
 		}
 		
-		private void procesarLectura(String lectura) {
-			
+		private boolean procesarLectura(String lectura) {
+			boolean procesarLectura = false;
+			if(lectura == null) {
+				//System.out.println("Lectura erronea");
+				return false;
+			}
 			String[] lec = lectura.split(",");
+			
+			if(lec[4] == "0" ) {
+				if(lec[5] == "0") {
+					procesarLectura = false;
+				}
+			} else {
+				procesarLectura = true;
+				dbClima.insertarClima("", lec[1], lec[2], lec[3], lec[4], lec[5],lec[6]);
+			}
+			
 			//System.out.println(lec[0]);
 			//lec[0] = lec[0].replace(".","-");
 			//String[] fe = lec[0].split(".");
@@ -90,9 +110,34 @@ public class ServerClima {
 			
 			//System.out.println("Fecha = "+fecha);
 			
-			dbClima.insertarClima("", lec[1], lec[2], lec[3], lec[4], lec[5],lec[6]);
+			//dbClima.insertarClima("", lec[1], lec[2], lec[3], lec[4], lec[5],lec[6]);
 			
+			return procesarLectura;
 		}
+		
+		
+		
+		private String getLectura() {
+			String inputLine = "";
+			try {
+				
+				URL url = new URL(parametros.getProperty("url").toString());
+				
+				BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
+
+				while ((inputLine = in.readLine()) != null) {
+					System.out.println(inputLine);
+					procesarLectura(inputLine);
+				}
+				in.close();
+				
+			} catch(Exception e) {
+				e.printStackTrace();
+				System.err.println(e.getMessage());
+			}
+			return inputLine;
+		}
+		
 		
 	}
 	
